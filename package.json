@@ -98,7 +98,7 @@
     "tmp": "^0.2.4"
   },
   "optionalDependencies": {
-    "@rolldown/binding-linux-x64-gnu": "1.0.3",
+    "@rolldown/binding-linux-x64-gnu": "1.1.0",
     "@tailwindcss/oxide-linux-x64-gnu": "4.3.0",
     "lightningcss-linux-x64-gnu": "1.32.0"
   },
@@ -120,7 +120,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.2",
-    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "jsdom": "^29.1.1",
