@@ -1,0 +1,639 @@
+{
+  "account": {
+    "title": "My data & account",
+    "description": "Under privacy law (PIPA/GDPR) you can export your data or permanently delete your account.",
+    "export": {
+      "title": "Export data",
+      "description": "Download your profile, notifications, and activity history as a JSON file.",
+      "button": "Export my data",
+      "success": "Your data has been exported.",
+      "error": "Export failed. Please try again later.",
+      "rateLimited": "Rate limit exceeded. Please try again in an hour."
+    },
+    "delete": {
+      "title": "Delete account",
+      "description": "Your account and all data will be permanently deleted. This cannot be undone.",
+      "button": "Delete account",
+      "dialogTitle": "Delete your account?",
+      "dialogDescription": "Your profile, notifications, and activity history will be permanently deleted and cannot be recovered.",
+      "confirmLabel": "Type {token} below to confirm.",
+      "cancel": "Cancel",
+      "confirmButton": "Permanently delete",
+      "error": "Deletion failed. Please try again later.",
+      "rateLimited": "Rate limit exceeded. Please try again in 24 hours."
+    }
+  },
+  "common": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "loading": "Loading...",
+    "empty": "Nothing to show",
+    "search": "Search",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "retry": "Retry"
+  },
+  "errors": {
+    "generic": "An error occurred.",
+    "networkFailed": "Network connection failed.",
+    "tryAgain": "Please try again.",
+    "pageError": "There was a problem displaying this page.",
+    "unauthorized": "Authentication required.",
+    "forbidden": "You don't have permission to access this resource.",
+    "notFound": "The requested item could not be found."
+  },
+  "navbar": {
+    "logoAlt": "OpenChain Korea Work Group Directory",
+    "title": "OpenChain KWG Members",
+    "directoryLink": "Directory",
+    "aboutLink": "About",
+    "privacyLink": "Privacy",
+    "registerProfile": "Register profile",
+    "editProfile": "Edit profile",
+    "adminLink": "Admin",
+    "loginGitHub": "Sign in with GitHub",
+    "loginGoogle": "Sign in with Google",
+    "loginGroupLabel": "Social sign-in",
+    "logout": "Sign out",
+    "userMenu": "User menu",
+    "userAvatarAlt": "{name} profile picture",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "themeToggle": "Toggle theme",
+    "searchTrigger": "Search",
+    "searchShortcutHint": "Cmd+K",
+    "mobileNavTitle": "Menu",
+    "mobileNavDescription": "Site navigation",
+    "language": "Change language",
+    "languageNames": { "ko": "한국어", "en": "English" }
+  },
+  "footer": {
+    "projectName": "OpenChain Korea Work Group",
+    "projectTagline": "A community of open source compliance professionals",
+    "columns": {
+      "project": "Project",
+      "links": "Links",
+      "legal": "Legal"
+    },
+    "links": {
+      "directory": "Directory",
+      "about": "About OpenChain",
+      "kwgSite": "KWG official site",
+      "github": "GitHub repository",
+      "privacy": "Privacy policy",
+      "license": "License"
+    },
+    "navAriaLabel": "Footer navigation",
+    "copyright": "© {year} OpenChain Korea Work Group",
+    "memberOnlyNotice": "Only signed-in members can view the directory."
+  },
+  "nav": {
+    "logo": "OpenChain KWG",
+    "registerProfile": "Register profile",
+    "login": "Sign in",
+    "loginGitHub": "Sign in with GitHub",
+    "logout": "Sign out"
+  },
+  "hero": {
+    "badge": "OpenChain Korea Work Group",
+    "title": "Openchain KWG\nMembers",
+    "description": "Browse OpenChain KWG member profiles at a glance.\nSign in with GitHub to view the full directory.",
+    "loginButton": "Sign in with GitHub",
+    "privacyLink": "View privacy policy",
+    "stats": {
+      "members": "Members",
+      "organizations": "Organizations",
+      "yearsActive": "Years active"
+    }
+  },
+  "directory": {
+    "title": "Member directory",
+    "memberCount": "OpenChain Korea Work Group · {count} members",
+    "searchPlaceholder": "Search by name or organization",
+    "searchClear": "Clear search",
+    "searchAriaLabel": "Search",
+    "filter": {
+      "all": "All",
+      "groupLabel": "Organization filter"
+    },
+    "emptySearch": {
+      "message": "No results for \"{query}\".",
+      "hint": "Check the spelling of the name or organization.",
+      "resetButton": "Clear search"
+    },
+    "emptyFilter": {
+      "message": "No members in the {category} category.",
+      "hint": "Try another category or view the full list.",
+      "resetButton": "View all"
+    },
+    "v2": {
+      "heroBadge": "OpenChain Korea Work Group",
+      "heroTitleAuthed": "Member directory",
+      "heroTitleGuest": "OpenChain KWG\nMembers",
+      "heroDescriptionAuthed": "Discover the open source compliance professional network.",
+      "heroDescriptionGuest": "OpenChain Korea Work Group member directory.\nSign in and get admin approval to view the full directory.",
+      "heroLoginGitHub": "Sign in with GitHub",
+      "heroLoginGoogle": "Sign in with Google",
+      "heroPrivacyLink": "Privacy policy",
+      "searchPlaceholder": "Search by name, organization, or tag",
+      "searchShortcutHint": "Press / to search",
+      "searchClear": "Clear search",
+      "filterGroupLabel": "Organization",
+      "filterAll": "All",
+      "sortLabel": "Sort",
+      "sortByName": "By name",
+      "sortByJoined": "Recently joined",
+      "sortRandom": "Random",
+      "resultCount": "{count} members",
+      "resultCountAria": "{count} results",
+      "emptyTitle": "No results",
+      "emptyDescription": "Try a different keyword or category.",
+      "emptyResetButton": "Reset filters",
+      "loadingLabel": "Loading members",
+      "heroMemberCount": "{count} members",
+      "gridAriaLabel": "Member list",
+      "guestMemberCount": "{count} admin-approved members",
+      "trustEmailPrivacy": "Email is shown to approved members only, if you choose to share it",
+      "trustApproval": "Only admin-approved members are listed",
+      "trustPipa": "PIPA-compliant data handling"
+    }
+  },
+  "memberCard": {
+    "snsVisit": "Visit {platform} profile",
+    "snsId": "{platform} handle",
+    "avatarAlt": "{name} profile avatar",
+    "viewDetail": "View {name}",
+    "snsHas": "Has {platform}",
+    "snsBlog": "Blog"
+  },
+  "modal": {
+    "closeButton": "Close modal",
+    "profileLabel": "{name} profile",
+    "fields": {
+      "organization": "Organization",
+      "bio": "About",
+      "email": "Email",
+      "links": "Links"
+    },
+    "snsVisit": "Visit {platform} profile"
+  },
+  "profileForm": {
+    "steps": ["Basic info", "Social · contact", "Visibility"],
+    "sections": {
+      "basic": {
+        "title": "Basic info",
+        "description": "Enter your name and organization."
+      },
+      "contact": {
+        "title": "Contact · Social",
+        "description": "Share contact details so other members can connect with you."
+      },
+      "visibility": {
+        "title": "Visibility",
+        "description": "The directory is only visible to signed-in members. Choose what to additionally share with other signed-in members below."
+      },
+      "agreement": {
+        "title": "Agreement",
+        "description": "Agree to the items below to complete your application."
+      }
+    },
+    "fields": {
+      "avatar": "Profile photo",
+      "nameKo": "Name (Korean)",
+      "nameEn": "Name (English)",
+      "company": "Organization",
+      "role": "Role",
+      "category": "Organization category",
+      "bio": "Short bio",
+      "email": "Work email",
+      "contactEmail": "Invitation email",
+      "phone": "Phone",
+      "linkedin": "LinkedIn URL",
+      "github": "GitHub username",
+      "discord": "Discord handle",
+      "blog": "Blog URL",
+      "tags": "Interest tags",
+      "emailPublic": "Show email",
+      "phonePublic": "Show phone"
+    },
+    "hints": {
+      "role": "e.g. Open source compliance, IP/legal, security",
+      "contactEmail": "The mailing list invitation will be sent to this email.",
+      "avatar": "Your profile photo is only visible to KWG members.",
+      "tags": "Select up to 10 tags."
+    },
+    "placeholders": {
+      "nameKo": "Hong Gildong",
+      "nameEn": "Gildong Hong",
+      "company": "OpenChain Inc.",
+      "role": "Open Source Program Manager",
+      "categorySelect": "Select a category",
+      "bio": "Open source compliance professional.",
+      "email": "gildong@example.com",
+      "contactEmail": "Enter your company email",
+      "phone": "010-0000-0000",
+      "linkedin": "https://linkedin.com/in/...",
+      "github": "github-username",
+      "discord": "username#1234",
+      "blog": "https://myblog.dev"
+    },
+    "avatar": {
+      "useDefault": "Use default avatar"
+    },
+    "required": "Required",
+    "optional": "Optional",
+    "createTitle": "Apply as a KWG member",
+    "createSubtitle": "Approved within 1–2 business days after maintainer review.",
+    "editTitle": "Edit my profile",
+    "editSubtitle": "Changing your name requires maintainer re-approval.",
+    "preview": {
+      "title": "Preview",
+      "description": "This is how your card appears to other members.",
+      "toggle": "Preview"
+    },
+    "agreement": {
+      "subscribe": "Also apply to join the mailing list (groups.io).",
+      "subscribeHint": "Uncheck this if you are already on the mailing list.",
+      "privacyConsent": "I agree to the <link>Privacy Policy</link>."
+    },
+    "privacy": {
+      "description": "The directory is only visible to signed-in members. Use the toggles below to choose what to share with other signed-in members.",
+      "reviewNotice": "Review by maintainers required",
+      "reviewDetail": "Your profile appears in the directory after maintainer approval. You can edit or delete it at any time.",
+      "editReviewNotice": "Re-approval required when name changes",
+      "editReviewDetail": "Changing your name (Korean/English) requires maintainer re-approval. Other changes apply immediately.",
+      "noEmailInput": "No email entered.",
+      "noPhoneInput": "No phone number entered."
+    },
+    "draft": {
+      "saved": "Draft saved",
+      "saving": "Saving...",
+      "restored": "Restored your saved draft.",
+      "clear": "Clear draft"
+    },
+    "bioCount": "{count}/200",
+    "nav": {
+      "prev": "Back",
+      "next": "Next",
+      "submit": "Submit application",
+      "submitting": "Submitting...",
+      "save": "Save",
+      "saving": "Saving...",
+      "withdraw": "Withdraw"
+    },
+    "validation": {
+      "nameKoRequired": "Name is required",
+      "companyRequired": "Organization is required",
+      "contactEmailRequired": "Please enter a valid email",
+      "emailInvalid": "Invalid email format",
+      "privacyRequired": "Privacy agreement is required"
+    },
+    "success": {
+      "title": "Your application is complete.",
+      "description": "After maintainer review, we will notify you of the result at the email below within 1–2 business days.",
+      "nextTitle": "These happen automatically after approval:",
+      "directoryAccess": "Member directory access enabled",
+      "mailingInvite": "Mailing list invitation sent",
+      "contact": "Contact:"
+    },
+    "withdraw": {
+      "title": "Are you sure you want to withdraw?",
+      "description": "Withdrawing immediately deletes all your information and cannot be undone.",
+      "cancel": "Go back",
+      "confirm": "Withdraw",
+      "processing": "Processing...",
+      "error": "An error occurred while withdrawing."
+    },
+    "errors": {
+      "submitFailed": "Submission failed",
+      "updateFailed": "Update failed",
+      "genericError": "Something went wrong while submitting."
+    }
+  },
+  "admin": {
+    "title": "Member approval",
+    "pageTitle": "Maintainer console",
+    "pageSubtitle": "Approve members and manage admin permissions.",
+    "pendingCount": "{count} members awaiting approval",
+    "emptyPending": "No members awaiting approval.",
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "detail": "Details",
+      "processing": "Processing...",
+      "errorMessage": "Something went wrong while processing."
+    },
+    "registeredDate": "Registered: {date}",
+    "accessDenied": {
+      "title": "Access denied",
+      "description": "You must be signed in as a maintainer."
+    },
+    "tabs": {
+      "pending": "Pending",
+      "admins": "Admins",
+      "activity": "Activity",
+      "newBadge": "NEW",
+      "newAlert": "{count} new notifications"
+    },
+    "csv": {
+      "label": "Download CSV",
+      "downloading": "Downloading...",
+      "ariaLabel": "Download full directory as CSV"
+    },
+    "table": {
+      "columnName": "Name",
+      "columnCompany": "Organization",
+      "columnCategory": "Category",
+      "columnAppliedAt": "Applied",
+      "columnActions": "Actions",
+      "selectAll": "Select all",
+      "selectRow": "Select row {index}",
+      "sortColumn": "Sort by {column}",
+      "selectedRows": "{selected} of {total} selected",
+      "pagination": "Pending list pagination",
+      "noCategory": "Uncategorized"
+    },
+    "approveToast": {
+      "sent": "{name} approved · mailing list invite sent",
+      "failed": "{name} approved · invite failed (resend needed)",
+      "skipped": "{name} approved"
+    },
+    "reject": {
+      "title": "Enter rejection reason",
+      "description": "Rejecting {name}'s application.",
+      "selectLabel": "Select a reason",
+      "selectPlaceholder": "Please choose a reason",
+      "customLabel": "Custom reason",
+      "customPlaceholder": "Enter a rejection reason.",
+      "confirm": "Confirm rejection",
+      "reasons": {
+        "ineligible": "Not eligible to join",
+        "companyUnverified": "Organization could not be verified",
+        "incompleteInfo": "Incomplete information",
+        "other": "Other"
+      }
+    },
+    "bulk": {
+      "summary": "{count} selected",
+      "approve": "Bulk approve",
+      "reject": "Bulk reject",
+      "clear": "Clear selection",
+      "processing": "Processing... ({done}/{total})",
+      "rejectTitle": "Bulk reject selected members",
+      "rejectDescription": "Reject the {count} selected members with the same reason.",
+      "result": "{success} succeeded · {failure} failed"
+    },
+    "detailSheet": {
+      "title": "Member details",
+      "appliedAt": "Applied",
+      "contactEmail": "Contact email",
+      "mailing": "Mailing list",
+      "mailingSubscribed": "Subscribed",
+      "mailingNotSubscribed": "Not subscribed",
+      "category": "Category",
+      "bio": "About",
+      "tags": "Interests",
+      "links": "Links"
+    },
+    "activity": {
+      "title": "Activity",
+      "emptyTitle": "No activity yet",
+      "emptyDescription": "Maintainer actions like approvals and rejections appear here.",
+      "loadError": "Failed to load activity.",
+      "actorLabel": "Maintainer",
+      "actions": {
+        "memberApprove": "Member approved",
+        "memberReject": "Member rejected",
+        "memberReinvite": "Mailing list re-invite",
+        "adminAdd": "Admin added",
+        "adminRemove": "Admin removed",
+        "adminRevoke": "Admin access revoked",
+        "meExport": "Personal data export",
+        "meDelete": "Account withdrawal",
+        "unknown": "Other activity"
+      }
+    },
+    "management": {
+      "addTitle": "Add admin",
+      "addSelectPlaceholder": "Select a member...",
+      "addButton": "Add",
+      "adding": "Adding...",
+      "addError": "Something went wrong while adding.",
+      "currentTitle": "Current admins ({count})",
+      "empty": "No admins.",
+      "unknownName": "Unknown",
+      "selfBadge": "You",
+      "registeredAt": "Added: {date}",
+      "remove": "Remove",
+      "removing": "Processing...",
+      "removeError": "Something went wrong while removing.",
+      "cannotRemoveSelf": "You cannot remove yourself",
+      "cannotRemoveLast": "The last admin cannot be removed",
+      "removeTitle": "Remove admin"
+    },
+    "mailing": {
+      "failedTitle": "Mailing list invite failed ({count}) — resend required",
+      "errorLabel": "Error: {message}",
+      "sent": "Sent",
+      "reinvite": "Resend",
+      "reinviting": "Sending...",
+      "reinviteError": "Something went wrong while resending.",
+      "noEmail": "—"
+    }
+  },
+  "privacy": {
+    "title": "Privacy policy",
+    "subtitle": "How OpenChain KWG Directory handles your personal information.",
+    "lastUpdated": "Last updated: {date}",
+    "lastUpdatedDate": "April 2026",
+    "tocTitle": "Table of contents",
+    "tocAriaLabel": "Privacy policy table of contents",
+    "sections": {
+      "collection": {
+        "id": "collection",
+        "title": "1. Personal information collected",
+        "intro": "The OpenChain Korea Work Group member directory (\"the Service\") collects the following information.",
+        "items": [
+          "Required: name (Korean/English), organization, GitHub account information (collected at sign-in)",
+          "Optional: role, short bio, work email, LinkedIn, Discord handle, blog URL, organization category"
+        ]
+      },
+      "purpose": {
+        "id": "purpose",
+        "title": "2. Purpose of collection and use",
+        "items": [
+          "Networking and information sharing among OpenChain KWG members",
+          "Operating and managing the member directory",
+          "Identity verification via GitHub OAuth"
+        ]
+      },
+      "retention": {
+        "id": "retention",
+        "title": "3. Retention and use period",
+        "body": "Personal information is destroyed immediately upon withdrawal (profile deletion request). Where retention is required by law, the information is kept only for the period prescribed by that law."
+      },
+      "thirdParty": {
+        "id": "third-party",
+        "title": "4. Third-party disclosure",
+        "body": "We do not provide collected personal information to external parties as a rule, except where required by law or where the data subject has consented."
+      },
+      "processors": {
+        "id": "processors",
+        "title": "5. Personal information processing entrustment",
+        "tableHeaders": {
+          "vendor": "Vendor",
+          "purpose": "Entrusted task"
+        },
+        "rows": [
+          { "vendor": "Supabase Inc.", "purpose": "Database and file storage" },
+          { "vendor": "Vercel Inc.", "purpose": "Web service hosting" },
+          { "vendor": "GitHub Inc.", "purpose": "OAuth authentication" }
+        ]
+      },
+      "rights": {
+        "id": "rights",
+        "title": "6. Rights of the data subject",
+        "intro": "Data subjects may exercise the following rights at any time.",
+        "items": [
+          "Request access, correction, or deletion of their personal information",
+          "Request that processing of their personal information be paused"
+        ],
+        "outro": "These rights can be exercised through the in-app profile editor or by contacting the privacy officer below."
+      },
+      "withdraw": {
+        "id": "withdraw",
+        "title": "7. Withdrawing consent",
+        "body": "Either delete your profile after signing in, or email the privacy officer to request deletion — your request will be handled immediately."
+      },
+      "officer": {
+        "id": "officer",
+        "title": "8. Privacy officer",
+        "roleLabel": "Role",
+        "roleValue": "OpenChain KWG maintainers",
+        "emailLabel": "Email",
+        "emailValue": "korea-sg-planning@lists.openchainproject.org"
+      },
+      "changes": {
+        "id": "changes",
+        "title": "9. Changes to this policy",
+        "body": "This policy may be revised in line with applicable law and service changes. Any changes will be announced in the service."
+      }
+    }
+  },
+  "loadingPage": {
+    "default": "Loading...",
+    "admin": "Loading the admin page...",
+    "profile": "Loading the profile page...",
+    "privacy": "Loading the privacy policy...",
+    "memberDetail": "Loading the member..."
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred while displaying this page.",
+    "retry": "Retry",
+    "backHome": "Back to home",
+    "errorCode": "Error code: {digest}"
+  },
+  "homeGuest": {
+    "logoAlt": "OpenChain Korea Work Group",
+    "title": "OpenChain KWG",
+    "titleLine2": "Members",
+    "description": "OpenChain Korea Work Group member directory",
+    "descriptionLine2": "Sign in with a social account to view the full directory.",
+    "loginGitHub": "Sign in with GitHub",
+    "loginGoogle": "Sign in with Google",
+    "privacyLink": "View privacy policy",
+    "withdrawnFlash": "Your account has been withdrawn.",
+    "srHeading": "Member directory",
+    "stats": {
+      "members": "Members",
+      "organizations": "Organizations",
+      "yearsActive": "Years active"
+    }
+  },
+  "avatarUpload": {
+    "changeAvatar": "Change profile photo",
+    "avatarAlt": "Profile photo",
+    "hint": "Click or drag to change the photo (max 2MB)",
+    "uploadFailed": "Upload failed"
+  },
+  "pendingApproval": {
+    "logoAlt": "OpenChain Korea Work Group",
+    "greeting": "Hello, {name}.",
+    "reviewing": "Your application is under maintainer review.",
+    "reviewingLine2": "You can access the member directory once approved.",
+    "appliedAt": "Applied: {date}",
+    "expectedProcessing": "Estimated processing: 1–2 business days",
+    "appliedDate": "{month}/{day}/{year}",
+    "editProfile": "Edit profile",
+    "cancelApplication": "Cancel application",
+    "cancelProcessing": "Processing...",
+    "contactLabel": "Contact:",
+    "cancelError": "An error occurred while cancelling.",
+    "confirm": {
+      "title": "Cancel your application?",
+      "description": "Cancelling deletes the information you entered. To apply again you will need to start over.",
+      "back": "Go back"
+    }
+  },
+  "directoryV2Page": {
+    "loading": "Loading members",
+    "resultCount": "{count} results",
+    "emptyTitle": "No members yet",
+    "emptyDescription": "New members will be joining soon.",
+    "emptyResetLabel": "Refresh",
+    "pagination": "Member list pagination",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "currentPage": "Current page {page}"
+  },
+  "memberDetail": {
+    "blog": "Blog",
+    "avatarAlt": "{name} profile avatar",
+    "company": "Organization",
+    "bio": "About",
+    "email": "Email",
+    "phone": "Phone",
+    "discord": "Discord",
+    "links": "Links",
+    "tags": "Interests",
+    "openProfile": "Open {label} profile in a new tab",
+    "prevMember": "Previous member",
+    "nextMember": "Next member",
+    "keyHint": "to navigate"
+  },
+  "directorySearch": {
+    "placeholder": "Search by name, organization, or tag",
+    "searchClear": "Clear search"
+  },
+  "directoryFilters": {
+    "all": "All",
+    "groupLabel": "Organization",
+    "sortLabel": "Sort",
+    "sortByName": "By name",
+    "sortByJoined": "Recently joined",
+    "sortRandom": "Random"
+  },
+  "directoryCommand": {
+    "dialogTitle": "Command palette",
+    "dialogDescription": "Use {shortcut} to search members and jump quickly.",
+    "inputPlaceholder": "Search commands or members…",
+    "searching": "Searching…",
+    "empty": "No results.",
+    "membersHeading": "Members",
+    "quickActionsHeading": "Quick actions",
+    "editProfile": "Edit profile",
+    "adminPage": "Admin page",
+    "toggleTheme": "Toggle theme",
+    "logout": "Sign out",
+    "pagesHeading": "Pages",
+    "privacy": "Privacy policy"
+  }
+}

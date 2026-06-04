@@ -1,0 +1,1361 @@
+# 이 파일은 자동 생성됩니다. 직접 수정 금지.
+# 원천: src/lib/openapi.ts — `node scripts/gen-openapi.mjs` 로 재생성.
+openapi: 3.1.0
+info:
+  title: KWG Directory API
+  version: 0.1.0
+  description: OpenChain Korea Work Group 멤버 주소록 REST API. 인증은 next-auth 세션 쿠키 기반. /api/auth/* 는 next-auth 내부 핸들러로 본 문서 범위 밖.
+  license:
+    name: Apache-2.0
+servers:
+  - url: /
+    description: 동일 오리진
+tags:
+  - name: system
+    description: 시스템·헬스
+  - name: members
+    description: 멤버 디렉토리
+  - name: me
+    description: 내 데이터(GDPR)
+  - name: upload
+    description: 파일 업로드
+  - name: admin
+    description: 운영진 전용
+paths:
+  /api/health:
+    get:
+      summary: 헬스 체크 — 가용성 모니터링용
+      tags:
+        - system
+      responses:
+        '200':
+          description: 정상
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /api/members:
+    get:
+      summary: 승인된 멤버 목록(페이지네이션). 비로그인 시 연락처 redact.
+      tags:
+        - members
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: tags
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 멤버 목록
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberListPaged'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: 내 프로필 생성(가입). 로그인 필요.
+      tags:
+        - members
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberCreate'
+      responses:
+        '201':
+          description: 생성됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/members/search:
+    get:
+      summary: 멤버 검색·필터·정렬(페이지네이션).
+      tags:
+        - members
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - name
+              - recent
+              - random
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: 검색 결과
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberSearchResult'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/members/{id}:
+    get:
+      summary: 멤버 단건 조회. 비로그인 시 연락처 redact.
+      tags:
+        - members
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 멤버
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '404':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: 멤버 부분 수정. 본인만.
+      tags:
+        - members
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberPatch'
+      responses:
+        '200':
+          description: 수정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: 멤버 삭제. 본인만.
+      tags:
+        - members
+      security:
+        - sessionCookie: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 삭제됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/members/me:
+    get:
+      summary: 내 프로필 조회. 미등록 시 404/null.
+      tags:
+        - members
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 내 프로필
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 미등록
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: 내 프로필 전체 수정.
+      tags:
+        - members
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberUpdate'
+      responses:
+        '200':
+          description: 수정됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: 내 프로필 삭제(탈퇴).
+      tags:
+        - members
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 삭제됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/me/export:
+    get:
+      summary: GDPR — 내 데이터 내보내기(JSON 다운로드). rate-limited.
+      tags:
+        - me
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 데이터 export(application/json 첨부)
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/me/delete:
+    delete:
+      summary: GDPR — 계정·데이터 영구 삭제. rate-limited(일 1회).
+      tags:
+        - me
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountDeleteRequest'
+      responses:
+        '204':
+          description: 삭제됨(본문 없음)
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/upload/avatar:
+    post:
+      summary: 아바타 이미지 업로드(multipart). 2MB·JPEG/PNG/WebP.
+      tags:
+        - upload
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 업로드됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvatarUploadResult'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/members:
+    get:
+      summary: '[admin] 전체 멤버(대기 포함) 목록.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 멤버 목록
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberList'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: '[admin] 멤버 승인/거절 토글.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminMembers'
+      responses:
+        '200':
+          description: 처리됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminActionResult'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/approve:
+    post:
+      summary: '[admin] 가입 승인 + 메일링 초대.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminId'
+      responses:
+        '200':
+          description: 승인됨
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/reject:
+    post:
+      summary: '[admin] 가입 거절(사유 필수).'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminReject'
+      responses:
+        '200':
+          description: 거절됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/reinvite:
+    post:
+      summary: '[admin] 메일링 초대 재발송.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminId'
+      responses:
+        '200':
+          description: 재발송됨
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/admins:
+    get:
+      summary: '[admin] 어드민 목록.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 어드민 목록
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberList'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: '[admin] 어드민 추가/제거.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAdmins'
+      responses:
+        '200':
+          description: 처리됨
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdminActionResult'
+        '400':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/activity:
+    get:
+      summary: '[admin] 감사 활동 로그.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 활동 로그
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityLog'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/notifications:
+    get:
+      summary: '[admin] 알림 목록.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 알림 목록
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationList'
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: '[admin] 알림 읽음 처리.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: 처리됨
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/admin/export/csv:
+    get:
+      summary: '[admin] 멤버 CSV 내보내기.'
+      tags:
+        - admin
+      security:
+        - sessionCookie: []
+      responses:
+        '200':
+          description: CSV
+          content:
+            text/csv:
+              schema:
+                type: string
+        '401':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: authjs.session-token
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+        - success
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        uptime:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+      required:
+        - status
+        - uptime
+        - timestamp
+        - version
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+        name_ko:
+          type: string
+        name_en:
+          type: string
+          nullable: true
+        company:
+          type: string
+        role:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum:
+            - 기업
+            - 연구/공공
+            - 학계
+          nullable: true
+        email:
+          type: string
+          nullable: true
+          description: 비로그인 시 redact
+        email_public:
+          type: boolean
+        linkedin:
+          type: string
+          nullable: true
+        github:
+          type: string
+          nullable: true
+        discord:
+          type: string
+          nullable: true
+        blog:
+          type: string
+          nullable: true
+        avatar_url:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        approved:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name_ko
+        - company
+        - approved
+    MemberList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Member'
+    MemberListPaged:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MemberList'
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - data
+        - total
+        - page
+        - totalPages
+    MemberSearchResult:
+      type: object
+      properties:
+        members:
+          $ref: '#/components/schemas/MemberList'
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - members
+        - total
+        - page
+        - pageSize
+        - totalPages
+    MemberCreate:
+      type: object
+      description: zod MemberCreateSchema 와 동기화(계약 테스트가 강제).
+      properties:
+        name_ko:
+          type: string
+          minLength: 1
+          maxLength: 50
+        name_en:
+          type: string
+          maxLength: 100
+        company:
+          type: string
+          minLength: 1
+          maxLength: 100
+        role:
+          type: string
+          maxLength: 100
+        bio:
+          type: string
+          maxLength: 200
+        category:
+          type: string
+          enum:
+            - 기업
+            - 연구/공공
+            - 학계
+        email:
+          type: string
+          format: email
+        email_public:
+          type: boolean
+        phone:
+          type: string
+          maxLength: 20
+        phone_public:
+          type: boolean
+        linkedin:
+          type: string
+          maxLength: 500
+        github:
+          type: string
+          maxLength: 500
+        discord:
+          type: string
+          maxLength: 100
+        blog:
+          type: string
+          maxLength: 500
+        avatar_url:
+          type: string
+          maxLength: 1000
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 30
+          maxItems: 10
+        contact_email:
+          type: string
+          format: email
+        subscribe_mailing_list:
+          type: boolean
+        privacy_agreed_at:
+          type: string
+          minLength: 1
+      required:
+        - name_ko
+        - company
+        - contact_email
+        - subscribe_mailing_list
+        - privacy_agreed_at
+    MemberUpdate:
+      type: object
+      description: zod MemberUpdateSchema 와 동기화.
+      properties:
+        name_ko:
+          type: string
+          minLength: 1
+          maxLength: 50
+        name_en:
+          type: string
+          maxLength: 100
+        company:
+          type: string
+          minLength: 1
+          maxLength: 100
+        role:
+          type: string
+          maxLength: 100
+        bio:
+          type: string
+          maxLength: 200
+        category:
+          type: string
+          enum:
+            - 기업
+            - 연구/공공
+            - 학계
+        email:
+          type: string
+          format: email
+        email_public:
+          type: boolean
+        phone:
+          type: string
+          maxLength: 20
+        phone_public:
+          type: boolean
+        linkedin:
+          type: string
+          maxLength: 500
+        github:
+          type: string
+          maxLength: 500
+        discord:
+          type: string
+          maxLength: 100
+        blog:
+          type: string
+          maxLength: 500
+        avatar_url:
+          type: string
+          maxLength: 1000
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 30
+          maxItems: 10
+        contact_email:
+          type: string
+          format: email
+        subscribe_mailing_list:
+          type: boolean
+      required:
+        - name_ko
+        - company
+    MemberPatch:
+      type: object
+      description: zod MemberPatchSchema 와 동기화.
+      properties:
+        name_ko:
+          type: string
+          minLength: 1
+          maxLength: 50
+        name_en:
+          type: string
+          maxLength: 100
+        company:
+          type: string
+          minLength: 1
+          maxLength: 100
+        role:
+          type: string
+          maxLength: 100
+        bio:
+          type: string
+          maxLength: 200
+        category:
+          type: string
+          enum:
+            - 기업
+            - 연구/공공
+            - 학계
+        email:
+          type: string
+          format: email
+        email_public:
+          type: boolean
+        linkedin:
+          type: string
+          maxLength: 500
+        github:
+          type: string
+          maxLength: 500
+        discord:
+          type: string
+          maxLength: 100
+        blog:
+          type: string
+          maxLength: 500
+    AccountDeleteRequest:
+      type: object
+      properties:
+        confirmation:
+          type: string
+          enum:
+            - DELETE-MY-ACCOUNT
+          description: 삭제 확인 토큰. 정확히 "DELETE-MY-ACCOUNT" 이어야 함.
+      required:
+        - confirmation
+    AvatarUploadResult:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+      required:
+        - url
+    AdminId:
+      type: object
+      description: zod AdminIdSchema 와 동기화.
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    AdminReject:
+      type: object
+      description: zod AdminRejectSchema 와 동기화.
+      properties:
+        id:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+        - id
+        - reason
+    AdminMembers:
+      type: object
+      description: zod AdminMembersSchema 와 동기화.
+      properties:
+        id:
+          type: string
+          format: uuid
+        approved:
+          type: boolean
+      required:
+        - id
+        - approved
+    AdminAdmins:
+      type: object
+      description: zod AdminAdminsSchema 와 동기화.
+      properties:
+        action:
+          type: string
+          enum:
+            - add
+            - remove
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - action
+        - user_id
+    AdminActionResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        action:
+          type: string
+      required:
+        - success
+        - action
+    ActivityLog:
+      type: array
+      items:
+        type: object
+    NotificationList:
+      type: array
+      items:
+        type: object

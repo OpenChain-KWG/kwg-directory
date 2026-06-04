@@ -1,0 +1,31 @@
+- name: bug
+  color: "d73a4a"
+  description: 버그 신고
+
+- name: enhancement
+  color: "0075ca"
+  description: 기능 개선 제안
+
+- name: documentation
+  color: "a8e5a0"
+  description: 문서 관련
+
+- name: good first issue
+  color: "7057ff"
+  description: 첫 기여자용 쉬운 이슈
+
+- name: help wanted
+  color: "008672"
+  description: 기여자 모집
+
+- name: security
+  color: "e4a04a"
+  description: 보안 관련
+
+- name: needs review
+  color: "cccccc"
+  description: 리뷰 대기 중
+
+- name: WIP
+  color: "fbca04"
+  description: 작업 진행 중

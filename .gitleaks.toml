@@ -1,0 +1,12 @@
+# gitleaks 설정 — 기본 룰셋 확장 + KWG allowlist
+title = "KWG Directory gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Supabase 로컬 개발용 공개 데모 JWT(anon/service_role). 비밀이 아니며 모든 로컬 supabase 인스턴스에 공통인 문서화된 공개 키다. 운영 키는 GitHub Secrets로만 주입한다."
+regexes = [
+  # payload issuer가 'supabase-demo'인 JWT만 허용 (로컬 데모 키)
+  '''eyJ[A-Za-z0-9_-]*\.eyJpc3MiOiJzdXBhYmFzZS1kZW1v[A-Za-z0-9._-]*''',
+]

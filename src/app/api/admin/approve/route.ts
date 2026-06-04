@@ -1,0 +1,112 @@
+import { NextResponse } from 'next/server'
+import { auth } from '@/auth'
+import { createAdminClient } from '@/lib/supabase-admin'
+import { isAdminWithMfa } from '@/lib/admin'
+import { sendApprovalEmail } from '@/lib/email'
+import { inviteMember } from '@/lib/groups-io'
+import { AdminIdSchema } from '@/lib/schemas'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { captureApiError, logger } from '@/lib/logger'
+import { auditLog } from '@/lib/audit'
+
+export type InviteStatus = 'sent' | 'failed' | 'skipped'
+
+export async function POST(request: Request) {
+  try {
+    const ip = getClientIp(request)
+    if (!(await checkRateLimit(`admin:${ip}`, 30, 60_000))) {
+      return NextResponse.json({ error: '너무 많은 요청입니다. 잠시 후 다시 시도해주세요.' }, { status: 429 })
+    }
+
+    const session = await auth()
+    if (!session?.user) {
+      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 401 })
+    }
+    if (!(await isAdminWithMfa(session.user.id, session.user.mfaEnabled))) {
+      return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 })
+    }
+
+    const rawBody = await request.json()
+    const parsed = AdminIdSchema.safeParse(rawBody)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: '입력값이 올바르지 않습니다.', details: parsed.error.flatten() },
+        { status: 400 }
+      )
+    }
+    const { id } = parsed.data
+
+    const supabase = createAdminClient()
+
+    const { data: member, error: fetchError } = await supabase
+      .from('members')
+      .select('id, name_ko, contact_email, email, subscribe_mailing_list')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !member) {
+      return NextResponse.json({ error: fetchError?.message ?? '요청한 정보를 찾을 수 없습니다.' }, { status: 404 })
+    }
+
+    const { data, error } = await supabase
+      .from('members')
+      .update({ approved: true })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // 감사 로그 기록 (비즈니스 흐름을 차단하지 않음)
+    await auditLog({
+      actorId: session.user.id,
+      action: 'member.approve',
+      targetType: 'member',
+      targetId: id,
+      before: { approved: false },
+      after: { approved: true },
+      request,
+    })
+
+    const recipientEmail = member.contact_email || member.email
+
+    // groups.io 초대 발송
+    let inviteStatus: InviteStatus = 'skipped'
+    if (member.subscribe_mailing_list && recipientEmail) {
+      try {
+        await inviteMember(recipientEmail, member.name_ko)
+        await supabase
+          .from('members')
+          .update({ mailing_invite_sent_at: new Date().toISOString(), mailing_invite_error: null })
+          .eq('id', id)
+        inviteStatus = 'sent'
+      } catch (e: unknown) {
+        const errorMsg = e instanceof Error ? e.message : String(e)
+        logger.warn({ memberId: id, err: errorMsg }, '[groups.io] 초대 발송 실패')
+        await supabase
+          .from('members')
+          .update({ mailing_invite_error: errorMsg })
+          .eq('id', id)
+        inviteStatus = 'failed'
+      }
+    }
+
+    // 승인 이메일 발송 (실패해도 승인은 성공으로 처리)
+    if (recipientEmail) {
+      await sendApprovalEmail(
+        member.name_ko,
+        recipientEmail,
+        member.subscribe_mailing_list ?? false
+      ).catch((e: unknown) => {
+        logger.warn({ err: e instanceof Error ? e.message : String(e) }, '[email] 승인 이메일 발송 실패')
+      })
+    }
+
+    return NextResponse.json({ success: true, data, inviteStatus })
+  } catch (error) {
+    captureApiError('POST /api/admin/approve', error)
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
+  }
+}

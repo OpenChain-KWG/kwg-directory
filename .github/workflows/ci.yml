@@ -1,0 +1,504 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─── 1단계: 정적 검사 (병렬) ───────────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 20 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: TypeScript 타입 검사
+        run: npm run type-check
+
+      - name: testId 일관성 검사
+        run: npm run check:testids
+
+      - name: i18n 키 동기화 검사 (ko/en)
+        run: npm run i18n:check
+
+      - name: OpenAPI 문서 동기화 검사
+        run: npm run openapi:check
+
+      - name: 디자인 토큰 lint
+        run: npm run lint:tokens
+
+      - name: npm audit (HIGH 이상 차단)
+        run: npm audit --audit-level=high
+        if: github.actor != 'dependabot[bot]'
+
+  # ─── 2단계: 단위·통합 테스트 + 커버리지 ────────────────────────────────────
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 20 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: 단위 테스트
+        run: npm run test:unit
+        env:
+          NEXTAUTH_SECRET: test-secret-32-chars-minimum-here
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
+
+      - name: 통합 테스트
+        if: github.actor != 'dependabot[bot]'
+        run: npm run test:integration
+        env:
+          NEXTAUTH_SECRET: test-secret-32-chars-minimum-here
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
+
+      - name: 커버리지
+        if: github.actor != 'dependabot[bot]'
+        run: npm run test:coverage
+        env:
+          NEXTAUTH_SECRET: test-secret-32-chars-minimum-here
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
+
+      - name: Coverage 리포트 PR 코멘트 게시
+        uses: actions/github-script@v9
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs')
+            const summaryPath = './coverage/coverage-summary.json'
+            if (!fs.existsSync(summaryPath)) return
+
+            const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'))
+            const t = summary.total
+            const pct = (v) => `${v.pct}% (${v.covered}/${v.total})`
+            const icon = (v) => v.pct >= 70 ? '✅' : '❌'
+
+            const body = [
+              '## 📊 Coverage Report',
+              '',
+              '| 항목 | 커버리지 | 상태 |',
+              '|------|---------|------|',
+              `| Lines      | ${pct(t.lines)}      | ${icon(t.lines)} |`,
+              `| Functions  | ${pct(t.functions)}  | ${icon(t.functions)} |`,
+              `| Branches   | ${pct(t.branches)}   | ${icon(t.branches)} |`,
+              `| Statements | ${pct(t.statements)} | ${icon(t.statements)} |`,
+              '',
+              `> 임계값: Lines/Functions/Branches 70% 이상`,
+            ].join('\n')
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            })
+            const prev = comments.find(c => c.user.type === 'Bot' && c.body.includes('📊 Coverage Report'))
+            if (prev) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: prev.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              })
+            }
+
+  # ─── 2단계: 마이그레이션 검증 + RLS 테스트 (병렬, test와 동시 실행) ───────────
+  rls:
+    name: Migration Validation & RLS Policy Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Supabase CLI 설치
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
+      - name: Supabase 로컬 시작
+        run: supabase start
+
+      - name: 마이그레이션 검증 (db reset)
+        # supabase db reset 은 migrations/ 폴더의 모든 파일을 순서대로 적용.
+        # syntax error, 의존성 오류, 중복 객체 등이 있으면 non-zero 종료 → job 실패.
+        run: supabase db reset --local
+
+      - name: Node.js 22 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: RLS 테스트 실행
+        run: npm run test:rls
+
+      - name: Supabase 중지
+        if: always()
+        run: supabase stop
+
+  # ─── 3단계: 빌드 (lint + test 완료 후) ─────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 20 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: Next.js 빌드
+        run: npm run build
+        env:
+          NEXTAUTH_SECRET: test-secret-32-chars-minimum-here
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+          SUPABASE_SERVICE_ROLE_KEY: test-service-role-key
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
+
+      - name: 빌드 아티팩트 캐시 저장
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            .next/standalone
+            .next/static
+            public
+          key: build-${{ github.sha }}
+
+  # ─── 4단계: E2E Gate 테스트 (빌드 완료 후) ─────────────────────────────────
+  e2e-gate:
+    name: E2E Gate Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: build
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 20 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: Playwright 브라우저 캐시 복원
+        id: playwright-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Playwright 브라우저 설치
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: Playwright 브라우저 캐시 저장
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+      # 격리된 로컬 Supabase로 실행 — 운영 DB에 테스트가 쓰지 않도록(시드/정리가 prod 오염 방지).
+      - name: Supabase CLI 설치
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
+      - name: Supabase 로컬 시작
+        run: supabase start
+
+      - name: 마이그레이션 적용 (db reset)
+        run: supabase db reset --local
+
+      - name: Supabase 키 환경 주입 (격리 — prod 미사용)
+        run: |
+          eval "$(supabase status -o env | grep -E '^(ANON_KEY|SERVICE_ROLE_KEY)=')"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      - name: E2E Gate 테스트 실행 (JSON 리포트 포함)
+        run: PLAYWRIGHT_JSON_OUTPUT_NAME=gate-report.json npx playwright test --grep @gate --project=chromium --reporter=json
+        env:
+          CI: true
+          E2E_SUPABASE: '1'
+          NEXTAUTH_SECRET: test-secret-32-chars-minimum-here
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_FF_NEW_DIRECTORY: 'on'
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
+
+      - name: E2E Gate KPI 요약
+        if: always()
+        run: node scripts/e2e-kpi-gate.mjs gate-report.json
+
+      - name: Supabase 중지
+        if: always()
+        run: supabase stop
+
+      - name: Playwright 리포트 아티팩트 업로드 (실패 시)
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: 스크린샷·비디오 아티팩트 업로드 (실패 시)
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-screenshots-videos
+          path: |
+            test-results/**/*.png
+            test-results/**/*.webm
+          retention-days: 7
+
+  # ─── 4b단계: 접근성 (axe-playwright @a11y) ───────────────────────────────
+  a11y:
+    name: A11y (axe) Tests — 공개 페이지
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 22 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: Playwright 브라우저 캐시 복원
+        id: playwright-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Playwright 브라우저 설치
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium --with-deps
+
+      - name: a11y(axe) 테스트 실행 (chromium, 공개 페이지)
+        # @a11y-authed(인증+데이터 페이지)는 로컬 Supabase seed 필요 → 후속 잡으로 이연.
+        run: npx playwright test --grep @a11y --grep-invert @a11y-authed --project=chromium
+        env:
+          CI: true
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-32-chars-minimum-here' }}
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-anon-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key' }}
+          GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID || 'test-client-id' }}
+          GITHUB_CLIENT_SECRET: ${{ secrets.GITHUB_CLIENT_SECRET || 'test-client-secret' }}
+
+      - name: a11y 리포트 업로드 (실패 시)
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: a11y-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ─── 4b'단계: 접근성 — 인증 페이지 (로컬 Supabase seed) ────────────────────
+  # @a11y-authed는 로그인+멤버 데이터가 필요 → rls 잡처럼 로컬 Supabase를 띄워 시드.
+  a11y-authed:
+    name: A11y (axe) Tests — 인증 페이지
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: build
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Supabase CLI 설치
+        uses: supabase/setup-cli@v2
+        with:
+          version: latest
+
+      - name: Supabase 로컬 시작
+        run: supabase start
+
+      - name: 마이그레이션 적용 (db reset)
+        run: supabase db reset --local
+
+      - name: Supabase 키 환경 주입 (인라인 시크릿 회피 — gitleaks)
+        # 로컬 Supabase 공개 데모 키를 런타임에 추출(하드코딩 금지).
+        run: |
+          eval "$(supabase status -o env | grep -E '^(ANON_KEY|SERVICE_ROLE_KEY)=')"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      - name: Node.js 22 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: Playwright 브라우저 설치
+        run: npx playwright install chromium --with-deps
+
+      - name: a11y(axe) 인증 페이지 실행 (로컬 Supabase seed)
+        # 키는 위 단계에서 $GITHUB_ENV로 주입됨. E2E_SUPABASE=1로 워커에서 실 시드 사용.
+        run: npx playwright test --grep @a11y-authed --project=chromium
+        env:
+          CI: true
+          E2E_SUPABASE: '1'
+          NEXTAUTH_SECRET: test-secret-32-chars-minimum-here
+          NEXTAUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_FF_NEW_DIRECTORY: 'on'
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          GITHUB_CLIENT_ID: test-client-id
+          GITHUB_CLIENT_SECRET: test-client-secret
+
+      - name: Supabase 중지
+        if: always()
+        run: supabase stop
+
+      - name: a11y-authed 리포트 업로드 (실패 시)
+        uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: a11y-authed-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ─── 4c단계: Lighthouse CI (Core Web Vitals·번들 예산) ────────────────────
+  # lighthouserc.json 단언은 warn 수준(비차단·정보성). 예산 강제는 추후 error로 승격.
+  lighthouse:
+    name: Lighthouse CI (CWV)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+    if: github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 22 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: Next.js 빌드 (v2 플래그)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FF_NEW_DIRECTORY: 'on'
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-32-chars-minimum-here' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-anon-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key' }}
+
+      - name: Lighthouse CI 실행 (/ , /privacy)
+        run: npx lhci autorun --config=lighthouserc.json
+        env:
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-32-chars-minimum-here' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'test-anon-key' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'test-service-role-key' }}
+
+  # ─── 5단계: Production Smoke (main push 후) ────────────────────────────────
+  e2e-smoke-prod:
+    name: E2E Smoke (Production)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: e2e-gate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Node.js 20 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: 의존성 설치
+        run: npm install --prefer-offline
+
+      - name: Playwright 브라우저 설치
+        run: npx playwright install chromium --with-deps
+
+      - name: 프로덕션 스모크 실행
+        run: npm run test:e2e:smoke:prod
+        env:
+          CI: true
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET || 'test-secret-32-chars-minimum-here' }}
+          NEXTAUTH_URL: https://kwg-directory.vercel.app

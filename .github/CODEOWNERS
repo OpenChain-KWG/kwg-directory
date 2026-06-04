@@ -1,0 +1,14 @@
+# CODEOWNERS — PR 자동 리뷰어 지정
+# 문서: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# 전체 기본 리뷰어
+*                      @haksungjang
+
+# 어드민 페이지 — 권한 변경 민감
+/src/app/admin/        @haksungjang
+
+# DB 스키마·RLS — 마이그레이션·보안 민감
+/supabase/             @haksungjang
+
+# 문서
+/docs/                 @haksungjang

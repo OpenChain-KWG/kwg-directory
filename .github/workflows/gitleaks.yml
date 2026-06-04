@@ -1,0 +1,29 @@
+name: Gitleaks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # gitleaks-action@v2는 org 소유 레포에 GITLEAKS_LICENSE secret을 요구한다.
+      # gitleaks 바이너리 자체는 무료(MIT)이므로 직접 실행해 라이선스 없이 스캔한다.
+      # (대안: gitleaks.io에서 무료 키 발급 후 secret GITLEAKS_LICENSE 추가하고 action으로 복귀)
+      - name: Install gitleaks
+        run: |
+          curl -sSfL https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz \
+            | sudo tar -xz -C /usr/local/bin gitleaks
+          gitleaks version
+
+      - name: Gitleaks scan
+        run: gitleaks detect --source . --redact -v

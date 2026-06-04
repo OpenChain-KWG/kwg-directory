@@ -1,0 +1,380 @@
+/* External @import must precede Tailwind: `@import "tailwindcss"` inlines into
+   rules, after which any later @import violates CSS "@import must come first"
+   (next dev/Turbopack errors; the prod build's lightningcss silently hoists). */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+@import "tailwindcss";
+
+/*
+ * Design tokens — mirror of src/design-system/tokens/
+ * Components consume these via Tailwind theme keys, never raw hex/px.
+ * Phase 1 (Foundation) — see ADR-0002 for design decisions.
+ */
+@theme {
+  /* ── Color scales (OKLCH 6 hue × 9 step) ──────────────────────── */
+  --color-gray-50:  oklch(98.5% 0.002 247);
+  --color-gray-100: oklch(96.5% 0.003 247);
+  --color-gray-200: oklch(92.5% 0.005 247);
+  --color-gray-300: oklch(86.0% 0.008 247);
+  --color-gray-400: oklch(70.0% 0.012 247);
+  --color-gray-500: oklch(55.5% 0.014 247);
+  --color-gray-600: oklch(44.0% 0.014 247);
+  --color-gray-700: oklch(36.0% 0.012 247);
+  --color-gray-800: oklch(26.5% 0.010 247);
+  --color-gray-900: oklch(18.0% 0.008 247);
+
+  --color-primary-50:  oklch(97.0% 0.012 192);
+  --color-primary-100: oklch(93.0% 0.025 192);
+  --color-primary-200: oklch(85.5% 0.045 192);
+  --color-primary-300: oklch(75.0% 0.060 192);
+  --color-primary-400: oklch(62.0% 0.068 192);
+  --color-primary-500: oklch(45.5% 0.072 192);
+  --color-primary-600: oklch(38.5% 0.064 192);
+  --color-primary-700: oklch(31.5% 0.054 192);
+  --color-primary-800: oklch(24.5% 0.042 192);
+  --color-primary-900: oklch(18.0% 0.030 192);
+
+  --color-success-50:  oklch(97.5% 0.018 152);
+  --color-success-100: oklch(93.5% 0.040 152);
+  --color-success-200: oklch(86.0% 0.080 152);
+  --color-success-300: oklch(76.5% 0.120 152);
+  --color-success-400: oklch(66.0% 0.150 152);
+  --color-success-500: oklch(56.0% 0.150 152);
+  --color-success-600: oklch(47.0% 0.130 152);
+  --color-success-700: oklch(38.5% 0.105 152);
+  --color-success-800: oklch(30.5% 0.080 152);
+  --color-success-900: oklch(22.5% 0.055 152);
+
+  --color-warning-50:  oklch(98.0% 0.020 85);
+  --color-warning-100: oklch(95.0% 0.045 85);
+  --color-warning-200: oklch(89.5% 0.090 85);
+  --color-warning-300: oklch(83.0% 0.130 85);
+  --color-warning-400: oklch(76.0% 0.155 85);
+  --color-warning-500: oklch(68.0% 0.160 85);
+  --color-warning-600: oklch(56.5% 0.140 85);
+  --color-warning-700: oklch(45.5% 0.115 85);
+  --color-warning-800: oklch(35.5% 0.090 85);
+  --color-warning-900: oklch(26.5% 0.065 85);
+
+  --color-danger-50:  oklch(97.5% 0.015 25);
+  --color-danger-100: oklch(93.5% 0.038 25);
+  --color-danger-200: oklch(86.5% 0.080 25);
+  --color-danger-300: oklch(77.5% 0.130 25);
+  --color-danger-400: oklch(68.0% 0.175 25);
+  --color-danger-500: oklch(58.0% 0.200 25);
+  --color-danger-600: oklch(48.5% 0.180 25);
+  --color-danger-700: oklch(40.0% 0.150 25);
+  --color-danger-800: oklch(31.5% 0.118 25);
+  --color-danger-900: oklch(23.5% 0.085 25);
+
+  --color-info-50:  oklch(97.5% 0.015 240);
+  --color-info-100: oklch(93.5% 0.035 240);
+  --color-info-200: oklch(86.5% 0.075 240);
+  --color-info-300: oklch(77.5% 0.115 240);
+  --color-info-400: oklch(68.0% 0.150 240);
+  --color-info-500: oklch(56.5% 0.165 240);
+  --color-info-600: oklch(47.5% 0.150 240);
+  --color-info-700: oklch(39.0% 0.125 240);
+  --color-info-800: oklch(30.5% 0.095 240);
+  --color-info-900: oklch(22.5% 0.065 240);
+
+  /* ── Semantic aliases (light theme defaults) ──────────────────── */
+  --color-bg-surface:        var(--color-gray-50);
+  --color-bg-surface-alt:    var(--color-gray-100);
+  --color-bg-surface-muted:  var(--color-gray-200);
+  --color-bg-surface-inverse:var(--color-gray-900);
+  --color-bg-overlay:        oklch(0% 0 0 / 0.5);
+
+  --color-text-default: var(--color-gray-900);
+  /* a11y: gray-600(oklch 44%)은 gray-50 표면에서 4.33:1로 AA(4.5) 경계 미달.
+     보조 텍스트가 가장 밝은 surface(gray-50)에서도 4.5:1을 넘도록 gray-700로 상향.
+     (L6 a11y 감사, 2026-05-22) */
+  --color-text-muted:   var(--color-gray-700);
+  /* a11y: gray-400(70%)은 surface 위 대비 2.16 → WCAG AA(4.5:1) 미달. 일반 텍스트·
+     placeholder에 쓰이므로 gray-600으로 상향(=muted 수준). 별도 faint 톤은 추후
+     large/decorative 전용으로 재정의 시 분리. (L6 a11y 감사, 2026-05-22) */
+  --color-text-faint:   var(--color-gray-600);
+  --color-text-inverse: var(--color-gray-50);
+  --color-text-link:    var(--color-primary-600);
+  --color-text-on-brand: var(--color-gray-50);
+
+  --color-border-subtle:  var(--color-gray-200);
+  --color-border-default: var(--color-gray-300);
+  --color-border-strong:  var(--color-gray-400);
+  --color-border-focus:   var(--color-primary-500);
+
+  --color-state-primary: var(--color-primary-500);
+  --color-state-success: var(--color-success-500);
+  --color-state-warning: var(--color-warning-500);
+  --color-state-danger:  var(--color-danger-500);
+  --color-state-info:    var(--color-info-500);
+
+  --color-focus-ring: oklch(45.5% 0.072 192 / 0.45);
+
+  /* ── Legacy aliases (retained for unmigrated components) ─────── */
+  --color-primary:           var(--color-primary-500);
+  --color-primary-light:     var(--color-primary-50);
+  --color-primary-dark:      var(--color-primary-700);
+  --color-primary-hover:     var(--color-primary-400);
+  --color-primary-highlight: oklch(45.5% 0.072 192 / 0.08);
+  --color-brand:             var(--color-primary-500);
+  --color-brand-hover:       var(--color-primary-700);
+  --color-brand-light:       var(--color-primary-300);
+  --color-brand-muted:       var(--color-gray-200);
+  --color-brand-faint:       var(--color-primary-50);
+  --color-surface:           var(--color-bg-surface);
+  --color-surface-alt:       var(--color-bg-surface-alt);
+  --color-border:            var(--color-border-subtle);
+  --color-text:              var(--color-text-default);
+  /* --color-text-muted, --color-text-faint already defined above */
+
+  /* ── Typography ───────────────────────────────────────────────── */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-mono:
+    'JetBrains Mono', 'SF Mono', Menlo, Monaco, Consolas,
+    'Liberation Mono', monospace;
+
+  --text-xs: 0.75rem;     --text-xs-line-height: 1rem;
+  --text-sm: 0.875rem;    --text-sm-line-height: 1.25rem;
+  --text-base: 1rem;      --text-base-line-height: 1.5rem;
+  --text-lg: 1.125rem;    --text-lg-line-height: 1.75rem;
+  --text-xl: 1.25rem;     --text-xl-line-height: 1.875rem;
+  --text-2xl: 1.5rem;     --text-2xl-line-height: 2rem;
+  --text-3xl: 1.875rem;   --text-3xl-line-height: 2.375rem;
+  --text-4xl: 2.25rem;    --text-4xl-line-height: 2.75rem;
+  --text-5xl: 3rem;       --text-5xl-line-height: 3.5rem;
+  --text-6xl: 3.75rem;    --text-6xl-line-height: 4.25rem;
+
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  /* ── Spacing (4px grid) ───────────────────────────────────────── */
+  --spacing: 0.25rem;
+
+  /* ── Radius ───────────────────────────────────────────────────── */
+  --radius-none: 0;
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* ── Shadow ───────────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 oklch(0% 0 0 / 0.04);
+  --shadow-sm: 0 1px 3px 0 oklch(0% 0 0 / 0.06), 0 1px 2px -1px oklch(0% 0 0 / 0.04);
+  --shadow-md: 0 4px 8px -2px oklch(0% 0 0 / 0.08), 0 2px 4px -2px oklch(0% 0 0 / 0.04);
+  --shadow-lg: 0 10px 16px -4px oklch(0% 0 0 / 0.10), 0 4px 6px -2px oklch(0% 0 0 / 0.04);
+  --shadow-xl: 0 20px 28px -6px oklch(0% 0 0 / 0.12), 0 8px 10px -4px oklch(0% 0 0 / 0.04);
+  --shadow-2xl: 0 28px 56px -12px oklch(0% 0 0 / 0.18);
+  --shadow-inner: inset 0 1px 2px 0 oklch(0% 0 0 / 0.06);
+
+  /* ── Motion ───────────────────────────────────────────────────── */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.5, 1.25, 0.75, 1.25);
+
+  /* ── Z-index ──────────────────────────────────────────────────── */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-overlay: 1200;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-toast: 1500;
+  --z-tooltip: 1600;
+}
+
+/* ── Z-index utilities ──────────────────────────────────────────────
+ * Tailwind v4에는 z-index용 테마 네임스페이스가 없어 @theme의 --z-* 만으로는
+ * z-overlay/z-modal 같은 유틸리티가 생성되지 않는다(클래스 no-op → Sheet/Dialog가
+ * z-index를 못 받아 navbar(z-50) 아래로 깔림). 토큰 레이어링을 실제로 동작시키기
+ * 위해 명시적 @utility로 등록한다. var(--z-*)가 emit 안 될 수 있어 리터럴 폴백 병행.
+ * 값 원천: src/design-system/tokens/z-index.ts */
+@utility z-base { z-index: var(--z-base, 0); }
+@utility z-raised { z-index: var(--z-raised, 10); }
+@utility z-dropdown { z-index: var(--z-dropdown, 1000); }
+@utility z-sticky { z-index: var(--z-sticky, 1100); }
+@utility z-overlay { z-index: var(--z-overlay, 1200); }
+@utility z-modal { z-index: var(--z-modal, 1300); }
+@utility z-popover { z-index: var(--z-popover, 1400); }
+@utility z-toast { z-index: var(--z-toast, 1500); }
+@utility z-tooltip { z-index: var(--z-tooltip, 1600); }
+
+/* ── Dark mode ──────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --color-bg-surface:        var(--color-gray-900);
+  --color-bg-surface-alt:    var(--color-gray-800);
+  --color-bg-surface-muted:  var(--color-gray-700);
+  --color-bg-surface-inverse:var(--color-gray-50);
+  --color-bg-overlay:        oklch(0% 0 0 / 0.7);
+
+  --color-text-default: var(--color-gray-50);
+  --color-text-muted:   var(--color-gray-400);
+  --color-text-faint:   var(--color-gray-500);
+  --color-text-inverse: var(--color-gray-900);
+  --color-text-link:    var(--color-primary-300);
+  --color-text-on-brand: var(--color-gray-50);
+
+  --color-border-subtle:  var(--color-gray-800);
+  --color-border-default: var(--color-gray-700);
+  --color-border-strong:  var(--color-gray-600);
+  --color-border-focus:   var(--color-primary-300);
+
+  --color-state-primary: var(--color-primary-300);
+  --color-focus-ring: oklch(75.0% 0.060 192 / 0.45);
+
+  /* Legacy aliases — dark */
+  --color-primary:           var(--color-primary-300);
+  --color-primary-light:     var(--color-primary-800);
+  --color-primary-dark:      var(--color-primary-100);
+  --color-primary-hover:     var(--color-primary-200);
+  --color-primary-highlight: oklch(75.0% 0.060 192 / 0.15);
+  --color-brand:             var(--color-primary-300);
+  --color-brand-hover:       var(--color-primary-100);
+  --color-brand-light:       var(--color-primary-200);
+  --color-brand-muted:       var(--color-gray-700);
+  --color-brand-faint:       var(--color-primary-800);
+  --color-surface:           var(--color-bg-surface);
+  --color-surface-alt:       var(--color-bg-surface-alt);
+  --color-border:            var(--color-border-subtle);
+  --color-text:              var(--color-text-default);
+}
+
+html {
+  font-family: var(--font-sans);
+  color: var(--color-text-default);
+}
+
+body {
+  background-color: var(--color-bg-surface);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-surface-alt);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-state-primary);
+  border-radius: var(--radius-sm);
+}
+
+/* 전역 focus-visible */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-xs), 0 0 0 3px var(--color-focus-ring);
+  border-radius: var(--radius-lg);
+}
+
+/* ── prefers-reduced-motion: 모든 애니메이션 강제 단축 ─────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Skeleton ──────────────────────────────────────── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.skeleton {
+  background-color: var(--color-border-subtle);
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── 모달 오버레이 애니메이션 ─────────────────────── */
+@keyframes modal-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modal-overlay-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+.animate-modal-overlay-in  { animation: modal-overlay-in  var(--duration-normal) var(--ease-out-cubic) forwards; }
+.animate-modal-overlay-out { animation: modal-overlay-out var(--duration-fast) var(--ease-out-cubic) forwards; }
+
+/* ── 모달 콘텐츠 애니메이션 (데스크톱) ─────────────── */
+@keyframes modal-content-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes modal-content-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(8px); }
+}
+@keyframes sheet-in {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes sheet-out {
+  from { transform: translateY(0); }
+  to   { transform: translateY(100%); }
+}
+
+/* 모바일: bottom sheet, 데스크톱: 중앙 슬라이드 */
+.animate-modal-content-in  { animation: sheet-in  var(--duration-slow) var(--ease-out-expo) forwards; }
+.animate-modal-content-out { animation: sheet-out var(--duration-normal) var(--ease-out-cubic) forwards; }
+
+@media (min-width: 640px) {
+  .animate-modal-content-in  { animation: modal-content-in  var(--duration-slow) var(--ease-out-expo) forwards; }
+  .animate-modal-content-out { animation: modal-content-out var(--duration-fast) var(--ease-out-cubic) forwards; }
+}
+
+/* ── 폼 단계 전환 ─────────────────────────────────── */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fade-in var(--duration-fast) var(--ease-in-out) forwards; }
+
+/* ── Phase 5: 페이지 진입 전환 ─────────────────────── */
+/* 라우트 진입(마운트) 시 1회 재생. 전역 prefers-reduced-motion 블록이 자동 단축. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter {
+  animation: page-enter var(--duration-normal) var(--ease-out-cubic) both;
+}
+
+/* ── Phase 5: 리스트 stagger 진입 ──────────────────── */
+/* 카드별 --card-index(0,1,2…)로 지연. index는 12에서 캡 → 최대 지연 고정. */
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.directory-card-enter {
+  animation: card-enter var(--duration-normal) var(--ease-out-cubic) both;
+  animation-delay: calc(min(var(--card-index, 0), 12) * 30ms);
+}

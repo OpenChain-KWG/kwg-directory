@@ -1,0 +1,63 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      testing:
+        patterns:
+          - "vitest*"
+          - "@vitest*"
+          - "playwright*"
+          - "@playwright*"
+          - "rolldown*"
+          - "@rolldown*"
+      build-tools:
+        patterns:
+          - "esbuild*"
+          - "@esbuild*"
+          - "lightningcss*"
+          - "tailwindcss*"
+          - "@tailwindcss*"
+      nextjs:
+        patterns:
+          - "next"
+          - "@next*"
+      ui-deps:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "lucide-react"
+          - "clsx"
+          - "tailwind-merge"
+      supabase:
+        patterns:
+          - "@supabase/*"
+          - "@auth/*"
+      dev-types:
+        patterns:
+          - "@types/*"
+      dev-tools:
+        patterns:
+          - "typescript"
+          - "jsdom"
+          - "vite"
+          - "@vitejs/*"
+          - "vite-*"
+          # eslint* 제외 — eslint-config-next가 eslint 10 지원 전까지 별도 관리
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore(ci)"
+    labels:
+      - "chore"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

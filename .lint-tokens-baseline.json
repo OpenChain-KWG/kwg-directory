@@ -1,0 +1,127 @@
+{
+  "generatedAt": "2026-05-24T07:15:13.580Z",
+  "note": "Existing design-token violations recorded at Phase 1. Phase 4 component refactor should shrink this. Regenerate after migration: npm run lint:tokens -- --update-baseline",
+  "count": 20,
+  "violations": [
+    {
+      "file": "src/app/manifest.ts",
+      "line": 10,
+      "kind": "hex",
+      "value": "#01696f"
+    },
+    {
+      "file": "src/app/manifest.ts",
+      "line": 11,
+      "kind": "hex",
+      "value": "#f7f6f2"
+    },
+    {
+      "file": "src/app/opengraph-image.tsx",
+      "line": 18,
+      "kind": "hex",
+      "value": "#01696f"
+    },
+    {
+      "file": "src/app/opengraph-image.tsx",
+      "line": 18,
+      "kind": "hex",
+      "value": "#014d52"
+    },
+    {
+      "file": "src/app/twitter-image.tsx",
+      "line": 18,
+      "kind": "hex",
+      "value": "#01696f"
+    },
+    {
+      "file": "src/app/twitter-image.tsx",
+      "line": 18,
+      "kind": "hex",
+      "value": "#014d52"
+    },
+    {
+      "file": "src/components/MemberCard.tsx",
+      "line": 38,
+      "kind": "hex",
+      "value": "#dbeafe"
+    },
+    {
+      "file": "src/components/MemberCard.tsx",
+      "line": 39,
+      "kind": "hex",
+      "value": "#ede9fe"
+    },
+    {
+      "file": "src/components/MemberModal.tsx",
+      "line": 60,
+      "kind": "arbitrary",
+      "value": "[20px]"
+    },
+    {
+      "file": "src/lib/mock-data.ts",
+      "line": 18,
+      "kind": "hex",
+      "value": "#1234"
+    },
+    {
+      "file": "src/lib/mock-data.ts",
+      "line": 60,
+      "kind": "hex",
+      "value": "#5678"
+    },
+    {
+      "file": "src/lib/mock-data.ts",
+      "line": 102,
+      "kind": "hex",
+      "value": "#9999"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 26,
+      "kind": "hex",
+      "value": "#01696f"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 26,
+      "kind": "hex",
+      "value": "#2563eb"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 26,
+      "kind": "hex",
+      "value": "#7c3aed"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 26,
+      "kind": "hex",
+      "value": "#db2777"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 27,
+      "kind": "hex",
+      "value": "#ea580c"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 27,
+      "kind": "hex",
+      "value": "#16a34a"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 27,
+      "kind": "hex",
+      "value": "#0891b2"
+    },
+    {
+      "file": "src/lib/utils.ts",
+      "line": 27,
+      "kind": "hex",
+      "value": "#9333ea"
+    }
+  ]
+}

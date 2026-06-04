@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 질문 / Questions
+    url: https://github.com/OpenChain-KWG/kwg-directory/discussions
+    about: 버그·기능 요청이 아닌 일반 질문은 Discussions를 이용해 주세요. / For general questions, please use Discussions.
+  - name: 보안 취약점 / Security
+    url: https://github.com/OpenChain-KWG/kwg-directory/blob/main/SECURITY.md
+    about: 보안 취약점은 공개 이슈가 아닌 SECURITY.md 절차를 따라 비공개로 신고해 주세요. / Report vulnerabilities privately per SECURITY.md.
