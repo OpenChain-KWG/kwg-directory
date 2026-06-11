@@ -98,7 +98,7 @@
     "tmp": "^0.2.4"
   },
   "optionalDependencies": {
-    "@rolldown/binding-linux-x64-gnu": "1.1.0",
+    "@rolldown/binding-linux-x64-gnu": "1.1.1",
     "@tailwindcss/oxide-linux-x64-gnu": "4.3.0",
     "lightningcss-linux-x64-gnu": "1.32.0"
   },
