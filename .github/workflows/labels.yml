@@ -11,7 +11,7 @@ jobs:
     name: Sync GitHub Labels
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: 라벨 동기화
         uses: EndBug/label-sync@v2
